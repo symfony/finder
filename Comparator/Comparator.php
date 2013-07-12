@@ -95,4 +95,48 @@ class Comparator
 
         return $test == $this->target;
     }
+
+    /**
+     * Tests if operator can be restrict by another operator.
+     *
+     * @return boolean
+     */
+    public function isRestrictable()
+    {
+        return in_array($this->operator, array('>', '>=', '<', '<='));
+    }
+
+    /**
+     * Returns the more restricted comparator of this and given one.
+     *
+     * @param Comparator $comparator
+     *
+     * @return $comparator
+     *
+     * @throws \LogicException
+     */
+    public function restrict(Comparator $comparator)
+    {
+        $isMin = function ($operator) { return in_array($operator, array('>', '>=')); };
+        $isMax = function ($operator) { return in_array($operator, array('<', '<=')); };
+        $withEq = function ($operator) { return in_array($operator, array('<=', '>=')); };
+
+        if ($isMin($this->operator) && $isMin($comparator->getOperator())) {
+            if ($this->target == $comparator->getTarget()) {
+                return $withEq($comparator->getTarget()) ? $this : $comparator;
+            }
+
+            return $this->target > $comparator->getTarget() ? $this : $comparator;
+        }
+
+        if ($isMax($this->operator) && $isMax($comparator->getOperator())) {
+            if ($this->target == $comparator->getTarget()) {
+                return $withEq($comparator->getTarget()) ? $this : $comparator;
+            }
+
+            return $this->target < $comparator->getTarget() ? $this : $comparator;
+        }
+
+        throw new \LogicException(sprintf('Cannot restrict "%s" operator with "%s" one.', $this->operator, $comparator->getOperator()));
+    }
 }

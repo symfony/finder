@@ -789,7 +789,8 @@ class FinderTest extends Iterator\RealIteratorTestCase
             array(
                 new Adapter\BsdFindAdapter(),
                 new Adapter\GnuFindAdapter(),
-                new Adapter\PhpAdapter()
+                new Adapter\RecursivePhpAdapter(),
+                new Adapter\PhpAdapter(),
             ),
             function (Adapter\AdapterInterface $adapter)  {
                 return $adapter->isSupported();

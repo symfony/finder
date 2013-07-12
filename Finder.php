@@ -15,6 +15,7 @@ use Symfony\Component\Finder\Adapter\AdapterInterface;
 use Symfony\Component\Finder\Adapter\GnuFindAdapter;
 use Symfony\Component\Finder\Adapter\BsdFindAdapter;
 use Symfony\Component\Finder\Adapter\PhpAdapter;
+use Symfony\Component\Finder\Adapter\RecursivePhpAdapter;
 use Symfony\Component\Finder\Exception\ExceptionInterface;
 
 /**
@@ -69,6 +70,7 @@ class Finder implements \IteratorAggregate, \Countable
         $this
             ->addAdapter(new GnuFindAdapter())
             ->addAdapter(new BsdFindAdapter())
+            ->addAdapter(new RecursivePhpAdapter(), -25)
             ->addAdapter(new PhpAdapter(), -50)
             ->setAdapter('php')
         ;

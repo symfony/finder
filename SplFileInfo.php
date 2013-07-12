@@ -20,6 +20,7 @@ class SplFileInfo extends \SplFileInfo
 {
     private $relativePath;
     private $relativePathname;
+    private $relativeDepth;
 
     /**
      * Constructor
@@ -27,12 +28,14 @@ class SplFileInfo extends \SplFileInfo
      * @param string $file             The file name
      * @param string $relativePath     The relative path
      * @param string $relativePathname The relative path name
+     * @param int    $relativeDepth    The relative depth
      */
-    public function __construct($file, $relativePath, $relativePathname)
+    public function __construct($file, $relativePath, $relativePathname, $relativeDepth = 0)
     {
         parent::__construct($file);
         $this->relativePath = $relativePath;
         $this->relativePathname = $relativePathname;
+        $this->relativeDepth = $relativeDepth;
     }
 
     /**
@@ -53,6 +56,16 @@ class SplFileInfo extends \SplFileInfo
     public function getRelativePathname()
     {
         return $this->relativePathname;
+    }
+
+    /**
+     * Returns the relative depth.
+     *
+     * @return int
+     */
+    public function getRelativeDepth()
+    {
+        return $this->relativeDepth;
     }
 
     /**
