@@ -1087,6 +1087,20 @@ class FinderTest extends Iterator\RealIteratorTestCase
         ]), $finder->in(self::$tmpDir)->getIterator());
     }
 
+    public function testUseUnixPaths()
+    {
+        $fixturesDirectory = __DIR__.\DIRECTORY_SEPARATOR.'Fixtures';
+
+        // Fix __DIR__ on Windows giving us backslashes.
+        $fixturesDirectory = str_replace('\\', '/', $fixturesDirectory);
+
+        $finder = $this->buildFinder();
+        $this->assertSame($finder, $finder->useUnixPaths());
+        foreach ($finder->in($fixturesDirectory) as $file) {
+            $this->assertStringNotContainsString('\\', $file->getPathname(), 'Paths should be in UNIX style.');
+        }
+    }
+
     public function testIn()
     {
         $finder = $this->buildFinder();
