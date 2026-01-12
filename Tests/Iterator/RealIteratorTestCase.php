@@ -72,8 +72,9 @@ abstract class RealIteratorTestCase extends IteratorTestCase
         file_put_contents(self::toAbsolute('test.php'), str_repeat(' ', 800));
         file_put_contents(self::toAbsolute('test.py'), str_repeat(' ', 2000));
 
-        touch(self::toAbsolute('foo/bar.tmp'), strtotime('-19 years'));
-        touch(self::toAbsolute('test.php'), strtotime('-19 years'));
+        $oneYearAgo = strtotime('-1 year');
+        touch(self::toAbsolute('foo/bar.tmp'), $oneYearAgo);
+        touch(self::toAbsolute('test.php'), $oneYearAgo);
 
         if (FinderTest::class === static::class) {
             $fs = new Filesystem();

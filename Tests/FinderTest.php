@@ -15,6 +15,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\ExpectationFailedException;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class FinderTest extends Iterator\RealIteratorTestCase
 {
@@ -1294,6 +1295,121 @@ class FinderTest extends Iterator\RealIteratorTestCase
         $finder->append($this->toAbsolute(['foo', 'toto']));
 
         $this->assertIterator($this->toAbsolute(['foo', 'foo/bar.tmp', 'toto']), $finder->getIterator());
+    }
+
+    public function testAppendStandardizesItemsToBeSymfonySplFileInfo()
+    {
+        $finder1 = $this->buildFinder();
+        $finder1->files()->in(self::$tmpDir.\DIRECTORY_SEPARATOR.'foo');
+
+        $finder2 = $this->buildFinder();
+        $finder2->directories()->in(self::$tmpDir);
+
+        $finder1->append($finder2);
+        $finder1->append($this->toAbsolute(['foo']));
+        $finder1->append(array_map(static fn ($item) => new \SplFileInfo($item), $this->toAbsolute(['toto'])));
+
+        foreach ($finder1 as $item) {
+            $this->assertInstanceOf(SplFileInfo::class, $item);
+        }
+    }
+
+    public function testRelativePathOfAppendedItems()
+    {
+        $this->setupVfsProvider([
+            'a' => [
+                'a1' => '',
+                'a2' => '',
+                'b' => [
+                    'b1' => '',
+                    'b2' => '',
+                    'c' => [
+                        'c1' => '',
+                        'c2' => '',
+                    ],
+                ],
+            ],
+        ]);
+
+        $formatForAssert = static function (Finder $finder) {
+            $data = [];
+            foreach ($finder as $key => $value) {
+                $data[] = ['key' => $key, 'relativePathname' => $value->getRelativePathname()];
+            }
+
+            return $data;
+        };
+
+        $dir = $this->vfsScheme.'://';
+
+        // no append
+        $finder = Finder::create()->sortByName()->in($dir.'a/b');
+        $this->assertSame(
+            [
+                ['key' => $dir.'a/b/b1', 'relativePathname' => 'b1'],
+                ['key' => $dir.'a/b/b2', 'relativePathname' => 'b2'],
+                ['key' => $dir.'a/b/c', 'relativePathname' => 'c'],
+                ['key' => $dir.'a/b/c/c1', 'relativePathname' => 'c/c1'],
+                ['key' => $dir.'a/b/c/c2', 'relativePathname' => 'c/c2'],
+            ],
+            $formatForAssert($finder),
+        );
+
+        // appending another Finder with parent directory
+        $finder = Finder::create()->sortByName()->in($dir.'a/b');
+        $finder->append(Finder::create()->sortByName()->in($dir.'a'));
+        $this->assertSame(
+            [
+                ['key' => $dir.'a/a1', 'relativePathname' => 'a1'],
+                ['key' => $dir.'a/a2', 'relativePathname' => 'a2'],
+                ['key' => $dir.'a/b', 'relativePathname' => 'b'],
+                ['key' => $dir.'a/b/b1', 'relativePathname' => 'b/b1'],
+                ['key' => $dir.'a/b/b2', 'relativePathname' => 'b/b2'],
+                ['key' => $dir.'a/b/c', 'relativePathname' => 'b/c'],
+                ['key' => $dir.'a/b/c/c1', 'relativePathname' => 'b/c/c1'],
+                ['key' => $dir.'a/b/c/c2', 'relativePathname' => 'b/c/c2'],
+            ],
+            $formatForAssert($finder),
+        );
+
+        // appending another Finder with child directory
+        $finder = Finder::create()->sortByName()->in($dir.'a/b');
+        $finder->append(Finder::create()->sortByName()->in($dir.'a/b/c'));
+        $this->assertSame(
+            [
+                ['key' => $dir.'a/b/b1', 'relativePathname' => 'b1'],
+                ['key' => $dir.'a/b/b2', 'relativePathname' => 'b2'],
+                ['key' => $dir.'a/b/c', 'relativePathname' => 'c'],
+                ['key' => $dir.'a/b/c/c1', 'relativePathname' => 'c1'],
+                ['key' => $dir.'a/b/c/c2', 'relativePathname' => 'c2'],
+            ],
+            $formatForAssert($finder),
+        );
+
+        // appending file paths
+        $finder = Finder::create()->sortByName()->in($dir.'a/b');
+        $finder->append([$dir.'a/a1', $dir.'a/b/c/c1']);
+        $this->assertSame(
+            [
+                ['key' => $dir.'a/a1', 'relativePathname' => $dir.'a/a1'],
+                ['key' => $dir.'a/b/b1', 'relativePathname' => 'b1'],
+                ['key' => $dir.'a/b/b2', 'relativePathname' => 'b2'],
+                ['key' => $dir.'a/b/c', 'relativePathname' => 'c'],
+                ['key' => $dir.'a/b/c/c1', 'relativePathname' => $dir.'a/b/c/c1'],
+                ['key' => $dir.'a/b/c/c2', 'relativePathname' => 'c/c2'],
+            ],
+            $formatForAssert($finder),
+        );
+
+        // appending with to empty Finder
+        $finder = Finder::create()->sortByName();
+        $finder->append([$dir.'a/a1']);
+        $this->assertSame(
+            [
+                ['key' => $dir.'a/a1', 'relativePathname' => $dir.'a/a1'],
+            ],
+            $formatForAssert($finder),
+        );
     }
 
     public function testAppendReturnsAFinder()
