@@ -1417,6 +1417,13 @@ class FinderTest extends Iterator\RealIteratorTestCase
         $this->assertInstanceOf(Finder::class, Finder::create()->append([]));
     }
 
+    public function testAppendEmptyIterableAllowsIteration()
+    {
+        $finder = Finder::create()->files()->name('*.php')->append([]);
+
+        $this->assertSame([], iterator_to_array($finder->getIterator()));
+    }
+
     public function testAppendDoesNotRequireIn()
     {
         $finder = $this->buildFinder();
