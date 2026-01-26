@@ -678,7 +678,7 @@ class Finder implements \IteratorAggregate, \Countable
             }
 
             foreach ($this->iterators as $it) {
-                $iterator->append((static function () use ($it) {
+                $iterator->append(new \IteratorIterator(new LazyIterator(static function () use ($it) {
                     foreach ($it as $file) {
                         if (!$file instanceof \SplFileInfo) {
                             $file = new \SplFileInfo($file);
@@ -690,7 +690,7 @@ class Finder implements \IteratorAggregate, \Countable
 
                         yield $key => $file;
                     }
-                })());
+                })));
             }
         }
 
