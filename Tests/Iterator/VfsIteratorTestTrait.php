@@ -52,7 +52,7 @@ trait VfsIteratorTestTrait
 
                 $this->scheme = $urlArr['scheme'];
 
-                return str_replace(\DIRECTORY_SEPARATOR, '/', $urlArr['host'].($urlArr['path'] ?? ''));
+                return rtrim(str_replace(\DIRECTORY_SEPARATOR, '/', $urlArr['host'].($urlArr['path'] ?? '')), '/');
             }
 
             public function processListDir(bool $fromRewind): bool
@@ -163,7 +163,7 @@ trait VfsIteratorTestTrait
         \assert($urlArr['scheme'] === $this->vfsScheme);
         \assert(isset($urlArr['host']));
 
-        return str_replace(\DIRECTORY_SEPARATOR, '/', $urlArr['host'].($urlArr['path'] ?? ''));
+        return rtrim(str_replace(\DIRECTORY_SEPARATOR, '/', $urlArr['host'].($urlArr['path'] ?? '')), '/');
     }
 
     protected function assertSameVfsIterator(array $expected, \Traversable $iterator)
