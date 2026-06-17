@@ -1879,4 +1879,14 @@ class FinderTest extends Iterator\RealIteratorTestCase
 
         return $data;
     }
+
+    public function testNormalizeDirKeepsTrailingSlashForStreamWrappers()
+    {
+        $normalize = new \ReflectionMethod(Finder::class, 'normalizeDir');
+        $finder = new Finder();
+
+        $this->assertSame('s3://bucket/test_dir/', $normalize->invoke($finder, 's3://bucket/test_dir'));
+        $this->assertSame('sftp://host/test_dir/', $normalize->invoke($finder, 'sftp://host/test_dir'));
+        $this->assertSame(__DIR__, $normalize->invoke($finder, __DIR__.'/'));
+    }
 }
