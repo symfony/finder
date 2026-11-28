@@ -1151,7 +1151,7 @@ class FinderTest extends Iterator\RealIteratorTestCase
             $this->markTestSkipped('symlinks are not supported on Windows');
         }
 
-        $tmpDir = realpath(sys_get_temp_dir()).'/symfony_finder_symlink_loop';
+        $tmpDir = realpath(sys_get_temp_dir()).'/sf_finder_'.hash('xxh32', __FILE__);
         $fs = new Filesystem();
         $fs->remove($tmpDir);
         $fs->mkdir([$tmpDir.'/a', $tmpDir.'/b']);
@@ -1179,7 +1179,7 @@ class FinderTest extends Iterator\RealIteratorTestCase
             $this->markTestSkipped('symlinks are not supported on Windows');
         }
 
-        $tmpDir = realpath(sys_get_temp_dir()).'/symfony_finder_symlink_loop';
+        $tmpDir = realpath(sys_get_temp_dir()).'/sf_finder_'.hash('xxh32', __FILE__);
         $fs = new Filesystem();
         $fs->remove($tmpDir);
         $fs->mkdir($tmpDir.'/x/y');

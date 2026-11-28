@@ -69,7 +69,7 @@ class FileTypeFilterIteratorTest extends RealIteratorTestCase
             $this->markTestSkipped('symlinks are not supported on Windows');
         }
 
-        $tmpDir = realpath(sys_get_temp_dir()).'/symfony_finder_dangling_symlink';
+        $tmpDir = realpath(sys_get_temp_dir()).'/sf_finder_'.hash('xxh32', __FILE__);
         mkdir($tmpDir);
         touch($tmpDir.'/file.txt');
         mkdir($tmpDir.'/dir');
