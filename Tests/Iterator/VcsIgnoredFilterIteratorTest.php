@@ -21,13 +21,13 @@ class VcsIgnoredFilterIteratorTest extends IteratorTestCase
 
     protected function setUp(): void
     {
-        $this->tmpDir = realpath(sys_get_temp_dir()).\DIRECTORY_SEPARATOR.'symfony_finder_vcs_ignored';
-        mkdir($this->tmpDir);
+        $this->tmpDir = realpath(sys_get_temp_dir()).\DIRECTORY_SEPARATOR.'sf_finder_'.hash('xxh32', __FILE__).\DIRECTORY_SEPARATOR.'vcs_ignored';
+        mkdir($this->tmpDir, 0o777, true);
     }
 
     protected function tearDown(): void
     {
-        $this->removeDirectory($this->tmpDir);
+        $this->removeDirectory(\dirname($this->tmpDir));
     }
 
     /**
