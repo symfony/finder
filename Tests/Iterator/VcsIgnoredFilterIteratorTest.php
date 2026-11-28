@@ -777,6 +777,20 @@ class VcsIgnoredFilterIteratorTest extends IteratorTestCase
         $this->assertSame(['.gitignore', 'visible.txt'], $visited);
     }
 
+    public function testFinderIteratorIsFreedOnUnset()
+    {
+        mkdir($this->tmpDir.'/.git');
+        touch($this->tmpDir.'/visible.txt');
+
+        $iterator = Finder::create()->files()->in($this->tmpDir)->ignoreVCSIgnored(true)->getIterator();
+        $this->assertIterator($this->toAbsolute(['visible.txt']), $iterator);
+
+        $reference = \WeakReference::create($iterator);
+        unset($iterator);
+
+        $this->assertNull($reference->get());
+    }
+
     private function toAbsolute(array $files): array
     {
         foreach ($files as &$path) {

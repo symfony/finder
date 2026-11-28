@@ -782,9 +782,7 @@ class Finder implements \IteratorAggregate, \Countable
 
         if (static::IGNORE_VCS_IGNORED_FILES === (static::IGNORE_VCS_IGNORED_FILES & $this->ignore)) {
             // Paths inside an ignored directory are ignored too, so ignored directories are not traversed
-            $exclude[] = static function (\SplFileInfo $file) use (&$vcsIgnoredFilter): bool {
-                return $vcsIgnoredFilter->acceptFile($file);
-            };
+            $exclude[] = $vcsIgnoredFilter = (new Iterator\VcsIgnoredFilterIterator(new \EmptyIterator(), $dir))->acceptFile(...);
         }
 
         $minDepth = 0;
@@ -859,8 +857,8 @@ class Finder implements \IteratorAggregate, \Countable
             $iterator = new Iterator\PathFilterIterator($iterator, $this->paths, $notPaths);
         }
 
-        if (static::IGNORE_VCS_IGNORED_FILES === (static::IGNORE_VCS_IGNORED_FILES & $this->ignore)) {
-            $iterator = $vcsIgnoredFilter = new Iterator\VcsIgnoredFilterIterator($iterator, $dir);
+        if (null !== $vcsIgnoredFilter) {
+            $iterator = new CustomFilterIterator($iterator, [$vcsIgnoredFilter]);
         }
 
         return $iterator;
