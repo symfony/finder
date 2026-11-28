@@ -21,7 +21,7 @@ abstract class RealIteratorTestCase extends IteratorTestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$tmpDir = realpath(sys_get_temp_dir()).\DIRECTORY_SEPARATOR.'symfony_finder';
+        self::$tmpDir = realpath(sys_get_temp_dir()).\DIRECTORY_SEPARATOR.'sf_finder_'.hash('xxh32', __FILE__);
 
         self::$files = [
             '.git/',
@@ -106,7 +106,7 @@ abstract class RealIteratorTestCase extends IteratorTestCase
         /*
          * Without the call to setUpBeforeClass() property can be null.
          */
-        self::$tmpDir ??= realpath(sys_get_temp_dir()).\DIRECTORY_SEPARATOR.'symfony_finder';
+        self::$tmpDir ??= realpath(sys_get_temp_dir()).\DIRECTORY_SEPARATOR.'sf_finder_'.hash('xxh32', __FILE__);
 
         if (\is_array($files)) {
             $f = [];
